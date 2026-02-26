@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  disk-desktop-client:
+    build: .
+    image: disk-desktop-client:latest
+    container_name: disk-desktop-client
+    environment:
+      - BACKEND_BASE_URL=http://host.docker.internal:8080/api
+    # Для полноценного GUI JavaFX из контейнера можно пробросить X11-сокет:
+    #  - DISPLAY=${DISPLAY}
+    #  - QT_X11_NO_MITSHM=1
+    # volumes:
+    #  - /tmp/.X11-unix:/tmp/.X11-unix
+    # При необходимости можно добавить network-секции для backend-сервиса.
+

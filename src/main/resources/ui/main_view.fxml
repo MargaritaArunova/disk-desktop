@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.diskdesktop.ui.MainController">
+
+    <top>
+        <ToolBar>
+            <Label text="Путь:"/>
+            <TextField fx:id="pathField" prefWidth="400"/>
+            <Button text="Вверх" onAction="#onUpClicked"/>
+            <Button text="Создать директорию" onAction="#onCreateDirClicked"/>
+            <Button text="Загрузить файл" onAction="#onUploadClicked"/>
+            <Button text="Обновить" onAction="#onRefreshClicked"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.3">
+            <items>
+                <AnchorPane>
+                    <children>
+                        <TreeView fx:id="directoryTree" AnchorPane.topAnchor="0.0"
+                                  AnchorPane.bottomAnchor="0.0"
+                                  AnchorPane.leftAnchor="0.0"
+                                  AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane>
+                    <children>
+                        <TableView fx:id="fileTable"
+                                   AnchorPane.topAnchor="0.0"
+                                   AnchorPane.bottomAnchor="0.0"
+                                   AnchorPane.leftAnchor="0.0"
+                                   AnchorPane.rightAnchor="0.0">
+                            <columns>
+                                <TableColumn fx:id="nameColumn" text="Имя" prefWidth="200.0"/>
+                                <TableColumn fx:id="sizeColumn" text="Размер" prefWidth="100.0"/>
+                                <TableColumn fx:id="modifiedColumn" text="Изменён" prefWidth="150.0"/>
+                            </columns>
+                        </TableView>
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="8.0" BorderPane.alignment="CENTER">
+            <children>
+                <ProgressBar fx:id="progressBar" prefWidth="200.0"/>
+                <Label fx:id="statusLabel" text="Готово"/>
+            </children>
+        </HBox>
+    </bottom>
+
+</BorderPane>
+

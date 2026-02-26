@@ -1,0 +1,301 @@
+openapi: 3.0.3
+info:
+  title: Custom File Storage API
+  version: 1.0.0
+  description: >
+    REST API для работы с файловым хранилищем (просмотр, загрузка, скачивание,
+    управление директориями).
+
+servers:
+  - url: http://localhost:8080/api
+
+paths:
+  /auth/login:
+    post:
+      summary: Аутентификация пользователя и получение JWT
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Неверные учетные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /files/{directory}:
+    get:
+      summary: Получить список файлов в директории
+      operationId: listFiles
+      parameters:
+        - name: directory
+          in: path
+          required: true
+          description: Путь директории относительно корня хранилища
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ со списком файлов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Загрузить файл в директорию
+      operationId: uploadFile
+      parameters:
+        - name: directory
+          in: path
+          required: true
+          description: Путь директории для загрузки файла
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Файл успешно загружен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          description: Файл слишком большой
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - bearerAuth: []
+
+  /files/{directory}/{filename}:
+    get:
+      summary: Скачать файл
+      operationId: downloadFile
+      parameters:
+        - name: directory
+          in: path
+          required: true
+          description: Путь директории
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          description: Имя файла
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Бинарное содержимое файла
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - bearerAuth: []
+
+  /directories/{directory}:
+    get:
+      summary: Получить список поддиректорий
+      operationId: listDirectories
+      parameters:
+        - name: directory
+          in: path
+          required: true
+          description: Путь директории
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список поддиректорий
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DirectoryInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Создать новую поддиректорию
+      operationId: createDirectory
+      parameters:
+        - name: directory
+          in: path
+          required: true
+          description: Родительская директория, в которой создается новая
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Имя новой поддиректории
+      responses:
+        '201':
+          description: Директория создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryInfo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    AuthRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    AuthResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: JWT-токен доступа
+    FileInfo:
+      type: object
+      required:
+        - name
+        - size
+        - lastModified
+        - directory
+      properties:
+        name:
+          type: string
+        size:
+          type: integer
+          format: int64
+        lastModified:
+          type: string
+          format: date-time
+        directory:
+          type: string
+          description: Путь директории, где находится файл
+    DirectoryInfo:
+      type: object
+      required:
+        - name
+        - path
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+          description: Полный путь директории относительно корня
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: string
+          nullable: true
+
+  responses:
+    BadRequest:
+      description: Неверный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+

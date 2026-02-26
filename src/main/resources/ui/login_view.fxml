@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.diskdesktop.ui.LoginController">
+
+    <center>
+        <GridPane hgap="8.0" vgap="8.0">
+            <padding>
+                <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" minWidth="120.0"/>
+                <ColumnConstraints halignment="LEFT" hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <children>
+                <Label text="Backend URL:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="baseUrlField" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                           promptText="http://localhost:8080/api"/>
+
+                <Label text="Логин:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="usernameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Пароль:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="passwordField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <CheckBox fx:id="rememberBaseUrlCheckBox"
+                          text="Запомнить Backend URL"
+                          GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Button fx:id="loginButton"
+                        text="Войти"
+                        defaultButton="true"
+                        onAction="#onLoginClicked"
+                        GridPane.rowIndex="4" GridPane.columnIndex="1"
+                        GridPane.halignment="RIGHT"/>
+
+                <Label fx:id="statusLabel"
+                       textFill="RED"
+                       GridPane.rowIndex="5" GridPane.columnIndex="0"
+                       GridPane.columnSpan="2"/>
+            </children>
+        </GridPane>
+    </center>
+
+</BorderPane>
+
